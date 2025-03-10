@@ -1,26 +1,31 @@
+from typing import Annotated
+
 import bcrypt
-from fastapi import APIRouter
-from tortoise.exceptions import DoesNotExist
+from fastapi import APIRouter, Header
+from tortoise.exceptions import DoesNotExist, IntegrityError
 
 from models import User
-from api_pydantic_schemas import UserRegister, UserLogin, UserToken, UserLoginResponse, UserSchema, UserLogoutResponse
+from api_pydantic_schemas import UserRegister, UserLogin, UserLoginResponse, UserSchema, UserLogoutResponse, UserRegisterResponse
 
 router = APIRouter()
 
 
-@router.post("/register", response_model=UserSchema)
+@router.post("/register", response_model=UserRegisterResponse)
 async def register(user: UserRegister):
-    # Hash the password before saving
-    hashed_password = bcrypt.hashpw(user.password.encode(), bcrypt.gensalt()).decode()
+    try:    
+        # Hash the password before saving
+        hashed_password = bcrypt.hashpw(user.password.encode(), bcrypt.gensalt()).decode()
 
-    # Create the user in the database
-    user_obj = await User.create(
-        username=user.username,
-        email=user.email,
-        password_hash=hashed_password,  # Save hashed password
-    )
-
-    return await UserSchema.from_tortoise_orm(user_obj)
+        # Create the user in the database
+        user_obj = await User.create(
+            username=user.username,
+            email=user.email,
+            password_hash=hashed_password,  # Save hashed password
+            is_active=True,
+        )
+        return {"success": True, "data": await UserSchema.from_tortoise_orm(user_obj), "message": ""}
+    except IntegrityError:
+        return {"success": False, "data": {}, "message": "Error. User already exists with that creds."}
 
 
 @router.post("/login", response_model=UserLoginResponse)
@@ -33,15 +38,15 @@ async def login(user_creds: UserLogin):
             await user.save()
             return {"success": True, "token": user.token, "message": ""}
         else:
-            return {"success": False, "token": user.token, "message": "Error. User not found with that creds."}
+            return {"success": False, "token": "", "message": "Error. User not found with that creds."}
     except DoesNotExist:
-        return {"success": False, "token": user.token, "message": "Error. User not found with that creds."}
+        return {"success": False, "token": "", "message": "Error. User not found with that creds."}
 
 
 @router.post("/logout", response_model=UserLogoutResponse)
-async def logout(user_creds: UserToken):
+async def logout(token: Annotated[str | None, Header()]):
     try:
-        user = await User.get(token=user_creds.token)
+        user = await User.get(token=token)
         user.token = ""
         await user.save()
         return {"success": True, "message": ""}

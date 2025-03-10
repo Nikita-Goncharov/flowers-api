@@ -41,7 +41,7 @@ class Flower(models.Model):
     img_link = fields.CharField(default="", max_length=500) # TODO: img with img local save
     
     def __str__(self):
-        return f"{self.name}({self.type.value}) - {self.price}"
+        return f"{self.name}({self.type}) - {self.price}"
 
 
 class Order(models.Model):
@@ -88,4 +88,4 @@ async def init():
     await Tortoise.init(
         config=config
     )
-    await Tortoise.generate_schemas()
+    # await Tortoise.generate_schemas()

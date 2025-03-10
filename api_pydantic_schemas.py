@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field
 from tortoise.contrib.pydantic import pydantic_model_creator
 
@@ -14,12 +16,10 @@ class UserLogin(BaseModel):
     email: str = Field()
     password: str = Field()
 
-class UserToken(BaseModel):
-    token: str = Field()
 
 class UserLoginResponse(BaseModel):
     success: bool
-    token: UserToken
+    token: str = Field()
     message: str
 
 class OrderCreate(BaseModel):
@@ -34,6 +34,11 @@ UserLogoutResponse = OrderCreateResponse
 
 UserSchema = pydantic_model_creator(User)
 
+class UserRegisterResponse(BaseModel):
+    success: bool
+    data: UserSchema | Literal[{}]
+    message: str
+
 class FlowerSchema(BaseModel):
     id: int
     name: str
@@ -47,3 +52,15 @@ class OrderSchema(BaseModel):
     status: Order.STATUSES
     flower: FlowerSchema
     quantity: int
+    
+    
+class OrderGetResponse(BaseModel):
+    success: bool
+    data: list[OrderSchema]
+    message: str
+    
+
+class FlowersGetResponse(BaseModel):
+    success: bool
+    data: list[FlowerSchema]
+    message: str

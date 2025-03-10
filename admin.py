@@ -1,7 +1,7 @@
 import bcrypt
 from uuid import UUID
 
-from fastadmin import TortoiseModelAdmin, register
+from fastadmin import TortoiseModelAdmin, register, action
 
 from models import User, Flower, Order
 
@@ -30,6 +30,14 @@ class UserAdmin(TortoiseModelAdmin):
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         user.password_hash = hashed_password
         user.save()
+        
+    # @action(description="Set as active")
+    # async def activate(self, ids: list[int]) -> None:
+    #     await self.model_cls.filter(id__in=ids).update(is_active=True)
+
+    # @action(description="Deactivate")
+    # async def deactivate(self, ids: list[int]) -> None:
+    #     await self.model_cls.filter(id__in=ids).update(is_active=False)
 
 
 @register(Flower)
