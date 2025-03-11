@@ -1,12 +1,15 @@
+import re
 from enum import Enum
 
 from tortoise import Tortoise, fields, models
+from tortoise.validators import RegexValidator
 
+EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
 
 class User(models.Model):
     id = fields.IntField(primary_key=True)
     username = fields.CharField(max_length=20, unique=True)
-    email = fields.CharField(max_length=50, unique=True)
+    email = fields.CharField(max_length=50, unique=True, validators=[RegexValidator(EMAIL_REGEX, re.I)])
     password_hash = fields.CharField(max_length=128, null=True)
     token = fields.CharField(max_length=128, default="")
     
