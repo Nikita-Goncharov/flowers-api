@@ -25,29 +25,16 @@ class Config:
     def DB_PASSWORD(self):
         return os.getenv("DB_PASSWORD")
     
-config = Config()
+    @property
+    def ADMIN_NAME(self):
+        return os.getenv("ADMIN_NAME")
+    
+    @property
+    def ADMIN_EMAIL(self):
+        return os.getenv("ADMIN_EMAIL")
+    
+    @property
+    def ADMIN_PASSWORD(self):
+        return os.getenv("ADMIN_PASSWORD")
 
-db_config = {
-    'connections': {
-        'default': {
-            'engine': 'tortoise.backends.asyncpg',
-            'credentials': {
-                'host': config.DB_HOST,
-                'port': config.DB_PORT,
-                'user': config.DB_USER,
-                'password': config.DB_PASSWORD,
-                'database': config.DB_NAME,
-                'minsize': 1,
-                'maxsize': 1000,
-            }
-        }
-    },
-    'apps': {
-        'models': {
-            'models': [ 'models', 'aerich.models'],
-            'default_connection': 'default',
-        }
-    },
-    'use_tz': False,
-    'timezone': 'UTC'
-}
+config = Config()

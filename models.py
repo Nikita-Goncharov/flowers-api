@@ -1,10 +1,14 @@
 import re
 from enum import Enum
 
+import bcrypt
 from tortoise import Tortoise, fields, models
 from tortoise.validators import RegexValidator
 
+from config import config as project_config
+
 EMAIL_REGEX = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+
 
 class User(models.Model):
     id = fields.IntField(primary_key=True)
@@ -91,4 +95,12 @@ async def init():
     await Tortoise.init(
         config=config
     )
-    # await Tortoise.generate_schemas()
+    await User.get_or_create(
+        username=project_config.ADMIN_NAME,
+        defaults={
+            "email": project_config.ADMIN_EMAIL,
+            "password_hash": bcrypt.hashpw(project_config.ADMIN_PASSWORD.encode(), bcrypt.gensalt()).decode(),
+            "is_superuser": True,
+            "is_active": True,
+        }
+    )

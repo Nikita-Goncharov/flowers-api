@@ -7,7 +7,8 @@ async def upgrade(db: BaseDBAsyncClient) -> str:
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(20) NOT NULL UNIQUE,
     "price" DECIMAL(5,2) NOT NULL DEFAULT 0,
-    "type" VARCHAR(20) NOT NULL DEFAULT 'white'
+    "type" VARCHAR(20) NOT NULL DEFAULT 'white',
+    "img_link" VARCHAR(500) NOT NULL DEFAULT ''
 );
 COMMENT ON COLUMN "flower"."type" IS 'red: red\nyellow: yellow\npink: pink\nwhite: white\nazure: azure\nblue: blue\norange: orange\npurple: purple';
 CREATE TABLE IF NOT EXISTS "user" (
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS "user" (
     "username" VARCHAR(20) NOT NULL UNIQUE,
     "email" VARCHAR(50) NOT NULL UNIQUE,
     "password_hash" VARCHAR(128),
+    "token" VARCHAR(128) NOT NULL DEFAULT '',
     "is_superuser" BOOL NOT NULL DEFAULT False,
     "is_active" BOOL NOT NULL DEFAULT False,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

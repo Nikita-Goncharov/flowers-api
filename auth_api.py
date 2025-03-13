@@ -16,7 +16,6 @@ async def register(user: UserRegister, response: Response):
         # Hash the password before saving
         hashed_password = bcrypt.hashpw(user.password.encode(), bcrypt.gensalt()).decode()
 
-        # Create the user in the database
         try:
             user_obj = await User.create(
                 username=user.username,
@@ -36,9 +35,8 @@ async def register(user: UserRegister, response: Response):
 @router.post("/login", response_model=UserLoginResponse, status_code=status.HTTP_200_OK)
 async def login(user_creds: UserLogin, response: Response):
     try:
-        user = await User.get(email=user_creds.email)
-        if bcrypt.checkpw(user_creds.password.encode("utf-8"), user.password_hash.encode()) and user.token == "":
-            print("here")
+        user = await User.get(email=user_creds.email, is_active=True)
+        if bcrypt.checkpw(user_creds.password.encode("utf-8"), user.password_hash.encode()):
             user.token = bcrypt.gensalt().decode("utf-8")
             await user.save()
             return {"success": True, "token": user.token, "message": ""}

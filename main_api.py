@@ -8,6 +8,7 @@ from api_pydantic_schemas import FlowerSchema, OrderSchema, OrderCreate, OrderCr
 
 router = APIRouter()
 
+
 @router.on_event("startup")
 async def on_startup():
     await init()
@@ -42,7 +43,7 @@ async def user_orders(token: Annotated[str | None, Header()], response: Response
         return {"success": True, "data": order_list, "message": ""}
     except DoesNotExist:
         response.status_code = status.HTTP_403_FORBIDDEN
-        return {"success": False, "message": "Error. Incorrect token."}
+        return {"success": False, "data": [], "message": "Error. Incorrect token."}
 
 
 @router.post("/orders", response_model=OrderCreateResponse, status_code=status.HTTP_200_OK)
@@ -63,4 +64,3 @@ async def create_order(order_data: OrderCreate, token: Annotated[str | None, Hea
     except DoesNotExist:
             response.status_code = status.HTTP_403_FORBIDDEN
             return {"success": False, "message": "Error. Incorrect token."}
-
